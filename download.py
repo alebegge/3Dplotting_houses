@@ -13,9 +13,29 @@ class Download():
     Each type of file has his own directory inside a parent directory defined in the init.  
     """
     def __init__(self, dir_name='resources'):
-        self.path_files_dir = os.path.join(os.path.abspath(''), f"{dir_name}")
+        self.dir_name = dir_name
+        self.path_files_dir = os.path.join(os.path.abspath(''), f"{self.dir_name}")
         self.path_dsm_nl_zip = os.path.join(self.path_files_dir, "DSM_nl_zip")
+        self.path_dsm_nl_unzip = os.path.join(self.path_files_dir, "DSM_nl_unzip")
         self.path_dtm_nl_zip = os.path.join(self.path_files_dir, "DTM_nl_zip")
+        self.path_dtm_nl_unzip = os.path.join(self.path_files_dir, "DTM_nl_unzip")
+    
+    def paths_creating(self):
+        """
+        Check if the directory are existing. If not, create them.
+        """
+        if not os.path.exists(self.path_dsm_nl_zip):
+            os.makedirs(self.path_dsm_nl_zip)
+            os.makedirs(self.path_dtm_nl_zip)
+            print(f"--- All directory created ---")
+        if not os.path.exists(self.path_dsm_nl_unzip):
+            os.makedirs(self.path_dsm_nl_unzip)
+            os.makedirs(self.path_dtm_nl_unzip)
+            print(f"--- All directory created ---")
+        elif os.path.exists(self.path_files_dir):
+            print(f"--- All directory already exists ---")
+        else:
+            print("Error. Unable to create directories.")
 
     def download_dsm_nl(self, start=1, end=43):
         """
@@ -69,4 +89,5 @@ class Download():
             
 
 test = Download()
-test.download_dsm_nl()
+test.paths_creating()
+# test.download_dsm_nl(1,5)
