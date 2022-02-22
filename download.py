@@ -2,7 +2,7 @@ import os
 import wget
 from datetime import datetime
 from pathlib import Path 
-import zipfile
+from zipfile import ZipFile
 
 
 class Download():
@@ -81,13 +81,48 @@ class Download():
         print("\n")
         print(f"All files downloaded. It tooks {(datetime.now() - start_time )} hours to get thoses {count} files.")
 
-    def unzip(self, type):
-        if type == "dsm":
-            for file in os.path.join(self.path_files_dir, Path("zip_files/DSM_NL")):
-                with zipfile.ZipFile(file, 'r') as zip_file:
-                    zip_file.extractall(os.path.join(self.path_files_dir, Path("unzip_files/DSM_NL")))
-            
+    def unzip(self, dsm=0, dtm=0):
+        """
+        Allow us to unzip the files. Extract all shapefile and geotiff before removing the zip folder.
+        """
+        if dsm == 1:
+            for dirz in os.listdir(self.path_dsm_nl_zip):
+                os.chdir(self.path_dsm_nl_zip)
+                with ZipFile(dirz,'r') as zipdir:
+                    list_files = zipdir.namelist()
+                    zipdir.extractall(path=self.path_dsm_nl_unzip)
+                    print(f"------ All Files from {dirz} extracted ----- ")
+            for shpdir in os.listdir(self.path_dsm_nl_unzip):
+                os.chdir(self.path_dsm_nl_unzip)
+                if shpdir.endswith('.zip'):
+                    with ZipFile(shpdir, 'r') as shpzip:
+                        shpzip.extractall()
+                        print(f"{shpdir} correctly extracted.")
+                    os.remove(shpdir)
+            print("######## ALL DATA EXTRACTED ########")
 
-test = Download()
-test.paths_creating()
-# test.download_dsm_nl(1,5)
+        if dtm == 1:
+            for dirz in os.listdir(self.path_dtm_nl_zip):
+                os.chdir(self.path_dtm_nl_zip)
+                with ZipFile(dirz,'r') as zipdir:
+                    list_files = zipdir.namelist()
+                    zipdir.extractall(path= self.path_dtm_nl_unzip)
+                    print(f"------ All Files from {dirz} extracted ----- ")
+            for shpdir in os.listdir(self.path_dtm_nl_unzip):
+                os.chdir(self.path_dtm_nl_unzip)
+                if shpdir.endswith('.zip'):
+                    with ZipFile(shpdir, 'r') as shpzip:
+                        shpzip.extractall()
+                        print(f"{shpdir} correctly extracted.")
+                    os.remove(shpdir)
+            print("######## ALL DATA EXTRACTED ########")
+            
+        if dsm == 0 and dtm ==  0:
+            print("Please enter which data you would like to extract.")
+            print("If you would like to extract dsm files, please enter 'dsm=1'.")
+            print("If you would like to extract dtm files, please enter 'dtm=1'.")
+
+# test = Download()
+# test.paths_creating()
+# test.unzip(dsm=0, dtm=0)
+# # test.download_dsm_nl(1,5)
