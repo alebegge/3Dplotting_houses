@@ -4,7 +4,9 @@ from pathlib import Path
 import rasterio
 import rasterio.plot
 from rasterio.plot import show
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
+import numpy as np
+import plotly.graph_objects as go
 
 
 class Plotting():
@@ -18,6 +20,10 @@ class Plotting():
         """
         self.x = x
         self.y = y
+        self.left = 0
+        self.bottom = 0
+        self.right = 0
+        self.top = 0
         self.dsm_gtif_path = os.path.join(os.path.abspath(''),Path("resources\DSM_nl_unzip\GeoTIFF"))
         self.dtm_gtif_path = os.path.join(os.path.abspath(''),Path("resources\DTM_nl_unzip\GeoTIFF"))
 
@@ -28,19 +34,18 @@ class Plotting():
         self.coord = ratio.transform(self.x, self.y)
         return self.coord
     
-    def x_bounds_calc(self, slice=25):
-        x = self.transform_coord()[0]
-        return [x - slice, x + slice]
+    def window_bounds(self, slice=25):
+        """
+        Create the 4 borders of our window.
+        To not display the hole file. 
+        """
+        x = self.coord[0]
+        y = self.coord[1]
+        self.left = (x - slice)
+        self.right = (x + slice)
+        self.top = (y + slice)
+        self.bottom = (y - slice)
 
-    def y_bounds_calc(self, slice=25):
-        y = self.transform_coord()[1]
-        return [y - slice, y + slice]
-    
-    # def zoomed_bounds(self, slice = 25):
-    #     x = self.transform_coord()[0]
-    #     y = self.transform_coord()[1]
-    #     return ([(x - slice, y-slice),(x-slice, y+slice),(x+slice,y - slice), (x + slice, y+slice)])
-    
 
     def wich_file(self) -> str:
         """
@@ -55,34 +60,59 @@ class Plotting():
                 self.file_ok = gtif 
                 return gtif_path
     
-    def plot_2d(self, slice=5):
+    def plot_2d(self, slice=25):
         """
         This method is able to print a 2D of the item. 
-        Slice is the size of the slicing of our item.
+        Based on the window range difined by our slice.
         """
-        x_bounds = [self.coord[0] - slice, self.coord[0] + slice]
-        y_bounds = [self.coord[1] - slice, self.coord[1] + slice]
-        src = rasterio.open(self.wich_file())
-        fig, ax = pyplot.subplots(1, figsize=(15,15))
-        ax.set_xlim(x_bounds)
-        ax.set_ylim(y_bounds)
+        self.window_bounds(slice=slice)
+        tif_file_path = self.wich_file()
+        with rasterio.open(tif_file_path) as src:
+            w = src.read(1, window=rasterio.windows.from_bounds(self.left, self.bottom, self.right, self.top, transform=src.transform))
+        fig = plt.figure(figsize=(15,15))
+        ax = fig.add_subplot(111)
+        ax.imshow(w)
         ax.set_title("Item in 2D")
-        show(src.read(),transform=src.transform, cmap='terrain_r',ax=ax)
-        pyplot.show()
-    
+        plt.show()
+
+    def plot_3d(self, slice=25):
+        """
+        Allow to plot a 3D modelisation based on DSM and DTM files.
+        """
+        self.window_bounds(slice=slice)
+        tif_file_path = self.wich_file()
+        with rasterio.open(tif_file_path) as src_dsm:
+            window = rasterio.windows.from_bounds(self.left, self.bottom, self.right, self.top, transform=src_dsm.transform)
+            fd_dsm = src_dsm.read(1, window=window)
+        with rasterio.open(self.dtm_path()) as src_dtm:
+            fd_dtm = src_dtm.read(1, window=window)
+        cols, row = np.meshgrid(np.arange(fd_dsm.shape[1]), np.arange(fd_dsm.shape[0]))
+        fig = go.Figure(data=[go.Surface(y=cols, x=row, z=(fd_dsm+fd_dtm))])
+        # fig = go.Figure(data=[go.Surface(z=w)])
+        fig.show()
+
+
     def ref_file(self) -> str:
         """
         Return the reference of the file. express in "k+nb".
         """
         file_inter = self.file_ok.replace("DHMVIIDSMRAS1m_", "")
         return file_inter[:-4]
-        
+
+    def dtm_path(self):
+        # self.wich_file()
+        dtm_file_name = self.file_ok.replace("DHMVIIDSMRAS1m_", "DHMVIIDTMRAS1m_")
+        dtm_path = os.path.join(self.dtm_gtif_path, dtm_file_name)
+        return dtm_path
 
 
-addres = Plotting(50.85488630639823, 4.3579057964208685)
+
+addres = Plotting(50.84722123483747, 4.485519972234445)
 addres.transform_coord()
-# print(addres.x_bounds())
-# print(addres.y_bounds())
 addres.wich_file()
-# # # print(addres.ref_file())
-# # addres.plot_2d(slice=250)
+# # print(addres.x_bounds())
+# # print(addres.y_bounds())
+addres.plot_3d(slice=25)
+
+# # # # print(addres.ref_file())
+# # # addres.plot_2d(slice=250)
