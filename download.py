@@ -122,7 +122,7 @@ class Download():
             print("If you would like to extract dsm files, please enter 'dsm=1'.")
             print("If you would like to extract dtm files, please enter 'dtm=1'.")
 
-# test = Download()
-# test.paths_creating()
-# test.unzip(dsm=0, dtm=0)
+test = Download()
+test.paths_creating()
+test.unzip(dsm=1, dtm=1)
 # # test.download_dsm_nl(1,5)

@@ -27,7 +27,20 @@ class Plotting():
         ratio = Transformer.from_crs(google_epsg, our_espg)
         self.coord = ratio.transform(self.x, self.y)
         return self.coord
+    
+    def x_bounds_calc(self, slice=25):
+        x = self.transform_coord()[0]
+        return [x - slice, x + slice]
 
+    def y_bounds_calc(self, slice=25):
+        y = self.transform_coord()[1]
+        return [y - slice, y + slice]
+    
+    # def zoomed_bounds(self, slice = 25):
+    #     x = self.transform_coord()[0]
+    #     y = self.transform_coord()[1]
+    #     return ([(x - slice, y-slice),(x-slice, y+slice),(x+slice,y - slice), (x + slice, y+slice)])
+    
 
     def wich_file(self) -> str:
         """
@@ -66,8 +79,10 @@ class Plotting():
         
 
 
-addres = Plotting(51.34395808132645, 3.2588635662958314)
+addres = Plotting(50.85488630639823, 4.3579057964208685)
 addres.transform_coord()
+# print(addres.x_bounds())
+# print(addres.y_bounds())
 addres.wich_file()
-# print(addres.ref_file())
-# addres.plot_2d(slice=50)
+# # # print(addres.ref_file())
+# # addres.plot_2d(slice=250)
