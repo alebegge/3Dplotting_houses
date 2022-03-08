@@ -3,7 +3,8 @@ from affine import Affine
 import xarray as xr 
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import rioxarray
+# import rioxarray
+import folium
 
 # test_wo = Plotting(50.83330365407295, 4.486695401854129)
 # test_wo.transform_coord()

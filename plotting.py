@@ -126,6 +126,9 @@ class Plotting():
         return os.path.join(unzip_path, f"DHMVII_vdc_{ref}.shp")
 
     def dtm_path(self):
+        """
+        Give us the path for the right DTM file. 
+        """
         # self.wich_file()
         dtm_file_name = self.file_ok.replace("DHMVIIDSMRAS1m_", "DHMVIIDTMRAS1m_")
         dtm_path = os.path.join(self.dtm_gtif_path, dtm_file_name)
@@ -144,13 +147,10 @@ class Plotting():
 
 
 
-addres = Plotting()
-addres.transform_coord()
-addres.wich_file()
-# # # print(addres.x_bounds())
-# # # print(addres.y_bounds())
-print(addres.shapefile_path())
-addres.plot_3d(slice=100)
-
-# # # # print(addres.ref_file())
-# # # addres.plot_2d(slice=250)
+# addres = Plotting()
+# addres.transform_coord()
+# addres.wich_file()
+# # # # print(addres.x_bounds())
+# # # # print(addres.y_bounds())
+# print(addres.shapefile_path())
+# addres.plot_3d(slice=200)
